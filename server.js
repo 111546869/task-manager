@@ -53,8 +53,10 @@ app.post("/api/register",async (req, res)=>{
     const hashedPassword = await bcrypt.hash(password,10);
     db.run("INSERT INTO users (username, password) VALUES (?,?)",[username, hashedPassword],err =>{
         if (err){
+            // console.log("500 error");
             return res.status(500).json({error:err.message});
         }
+        // console.log("success:true");
         res.json({success:true});
     });
 })
@@ -77,7 +79,7 @@ app.post("/api/login", (req,res)=>{
             const isMatch = await bcrypt.compare(password,user.password);
             if (!isMatch) return res.status(401).json({ error: '用户名或密码错误' });
             const token = jwt.sign({id:user.id,username:user.username},JWT_SECRET, {expiresIn:"1h"});
-            console.log(token);
+            // console.log(token);
             // const decoded = jwt.decode(token);
             // console.log("token decoded: ",decoded);
             res.json({token,username:user.username});
@@ -93,7 +95,7 @@ function authenticateToken(req, res, next){
     const token = authHeader && authHeader.split(" ")[1]
 
     if (!token) {
-        console.log("token empty");
+        // console.log("token empty");
         return res.sendStatus(401);
     }
     // console.log(token);

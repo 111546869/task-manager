@@ -2,13 +2,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     const addTaskBtn = document.getElementById('addTaskBtn');
     const tasksContainer = document.getElementById('tasksContainer');
-    const authContainer = document.getElementById("auth-container");
+    const loginCard = document.getElementById("login-card");
     const appContainer = document.getElementById("app-container");
-    const loginBtn = document.getElementById("loginBtn");
-    const registerBtn = document.getElementById("registerBtn");
+    const loginBtn = document.getElementById("login-btn");
+    const registerLink = document.getElementById("register-link");
     const logoutBtn = document.getElementById("logoutBtn");
     const usernameDisplay = document.getElementById("usernameDisplay");
-    
+    const forgotPasswordLink = document.getElementById("forgot-password-link");
+    const registerCard = document.getElementById("register-card");
+    const registerBtn = document.getElementById("register-btn");
+    const forgotpasswordCard = document.getElementById("forgot-password-card");
     let currentUser = null;
     let token = localStorage.getItem("token");
     // console.log("current token:",token);
@@ -32,7 +35,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }else{
         showAuth();
     }
+
+    forgotPasswordLink.addEventListener("click",function(){
+        showForgotPasswordCard();
+    });
+
+    registerLink.addEventListener("click",function(){
+        // alert("register");
+        showRegister();
+    });
+
+
     registerBtn.addEventListener("click", function(){
+        // showRegister();
+        // console.log("starting register");
+        event.preventDefault();
         const username = document.getElementById("registerUsername").value;
         const password = document.getElementById("registerPassword").value;
 
@@ -40,7 +57,8 @@ document.addEventListener('DOMContentLoaded', function() {
             alert("请输入用户名和密码");
             return;
         }
-
+        // console.log("starting registering");
+        
         fetch("/api/register",{
             method: "POST",
             headers:{
@@ -50,24 +68,28 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(res=> res.json())
         .then(data=>{
+            // console.log("check if register success");
+            // alert("register");
             if (data.success) {
+                console.log("register success");
                 alert("注册成功，请登录");
                 document.getElementById("registerUsername").value = "";
                 document.getElementById("registerPassword").value = "";
-
+                showAuth();
             }else{
-                alert(data.error || "登陆失败");
+                alert("注册失败");
             }
         })
         .catch(err=>{
             console.error("Error: ",err);
             alert("注册失败");
         });
+
     });
 
     loginBtn.addEventListener("click",function(){
-        const username = document.getElementById("loginUsername").value;
-        const password = document.getElementById("loginPassword").value;
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
 
         if (!username || !password) {
             alert("请输入用户名和密码");
@@ -88,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 token = data.token;
                 currentUser = {username: data.username};
                 showApp();
+                loadTasks();
                 // alert("登录成功");
             }else{
                 alert(data.error || "登陆失败");
@@ -106,18 +129,41 @@ document.addEventListener('DOMContentLoaded', function() {
         showAuth();
     });
 
-    function showAuth(){
-        authContainer.style.display = "block";
+    function showForgotPasswordCard(){
+        document.getElementById("oldUsername").value = "";
+        document.getElementById("newPassword").value = "";
+        forgotpasswordCard.style.display = "block";
+        registerCard.style.display = "none";
+        loginCard.style.display = "none";
         appContainer.style.display = "none";
     }
+
+    function showRegister(){
+        document.getElementById("registerUsername").value = "";
+        document.getElementById("registerPassword").value = "";
+        registerCard.style.display = "block";
+        loginCard.style.display = "none";
+        appContainer.style.display = "none";
+        forgotpasswordCard.style.display = "none";
+    }
+    function showAuth(){
+        document.getElementById("username").value = "";
+        document.getElementById("password").value = "";
+        loginCard.style.display = "block";
+        appContainer.style.display = "none";
+        registerCard.style.display = "none";
+        forgotpasswordCard.style.display = "none";
+    }
     function showApp(){
-        authContainer.style.display = "none";
+        loginCard.style.display = "none";
         appContainer.style.display = "block";
+        registerCard.style.display = "none";
+        forgotpasswordCard.style.display = "none";
         usernameDisplay.textContent = currentUser.username;
         loadTasks();
     }
     // 加载所有任务
-    loadTasks();
+    // loadTasks();
     
     // 添加任务事件
     addTaskBtn.addEventListener('click', addTask);
@@ -166,9 +212,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <p>${task.description}</p>
             <p class="due-date">截止日期: ${task.dueDate || '无'}</p>
             <div class="edit-form" style="display: none">
-                <input type="text" class="edit-title" value="${task.title}">
-                <textarea class="edit-description">${task.description}</textarea>
-                <input type="date" class="edit-due-date" value="${task.dueDate || ''}">
+                任务标题<input type="text" class="edit-title" value="${task.title}" placeholder = "任务标题">
+                任务描述<textarea class="edit-description" placeholder = "任务描述">${task.description}</textarea>
+                截止日期<input type="date" class="edit-due-date" value="${task.dueDate || ''}" placeholder = "截止日期">
                 <button class="save-btn">保存</button>
                 <button class="cancel-btn">取消</button>
             </div>
