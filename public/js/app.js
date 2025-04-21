@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 token = data.token;
                 currentUser = {username: data.username};
                 showApp();
-                loadTasks();
+                // loadTasks();
                 // alert("登录成功");
             }else{
                 alert(data.error || "登陆失败");
