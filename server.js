@@ -35,12 +35,33 @@ db.serialize(() => {
         user_id INTEGER NOT NULL,
         task_id INTEGER NOT NULL,
         FOREIGN KEY(user_id) REFERENCES users(id),
-        FOREIGN KEY(task_id) REFERENCES tasks(id),
         PRIMARY KEY(user_id,task_id)
     )`);
 });
 
 // API路由
+app.post("/api/findpassword",async (req, res)=>{
+    const {username, password} = req.body;
+    if (!username || !password) {
+        return res.status(400).json({error:"用户名和密码不能为空"});
+    }
+    db.get("SELECT * FROM users WHERE username=?",[username],(err,row)=>{
+        if (!row){
+            return res.status(600).json({error:"用户名不存在"});
+        }
+    });
+
+    const hashedPassword  = await bcrypt.hash(password,10);
+    db.run("UPDATE users SET password=? WHERE username=?",[hashedPassword,username],err=>{
+        if (err){
+            return res.status(500).json({error:err.message});
+
+        }
+        res.json({success:true});
+    });
+    
+
+})
 
 app.post("/api/register",async (req, res)=>{
     const {username, password} = req.body;

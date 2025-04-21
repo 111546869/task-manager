@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const registerCard = document.getElementById("register-card");
     const registerBtn = document.getElementById("register-btn");
     const forgotpasswordCard = document.getElementById("forgot-password-card");
+    const ensureBtn = document.getElementById("ensure-btn");
+
     let currentUser = null;
     let token = localStorage.getItem("token");
     // console.log("current token:",token);
@@ -35,6 +37,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }else{
         showAuth();
     }
+
+    ensureBtn.addEventListener("click",function(){
+        const username = document.getElementById("oldUsername").value;
+        const password = document.getElementById("newPassword").value;
+
+        if (!username||!password){
+            alert("请输入用户名和密码");
+            return;
+        }
+
+        fetch("/api/findpassword",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({username,password})
+        })
+        .then(res=>res.json())
+        .then(data=>{
+            if (data.success){
+                alert("密码已设置成功，请登录");
+                document.getElementById("oldUsername").value = "";
+                document.getElementById("newPassword").value = "";
+                showAuth();
+            }
+            else{
+                // alert("密码找回失败");
+                err_message = data.error;
+                alert(err_message);
+            }
+        })
+    });
 
     forgotPasswordLink.addEventListener("click",function(){
         showForgotPasswordCard();
@@ -70,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data=>{
             // console.log("check if register success");
             // alert("register");
+            // console.log(data.success);
             if (data.success) {
                 console.log("register success");
                 alert("注册成功，请登录");
