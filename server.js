@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 数据库连接
-const db = new sqlite3.Database('../data/tasks.db', (err) => {
+const db = new sqlite3.Database('./tasks.db', (err) => {
     if (err) {
         console.error(err.message);
     }
